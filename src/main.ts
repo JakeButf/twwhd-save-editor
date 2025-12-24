@@ -1,4 +1,5 @@
 import './style.css';
+import { updateChecksums } from './checksum';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
@@ -12,7 +13,6 @@ app.innerHTML = `
     <main>
       <div class="upload-section">
         <div class="upload-area" id="uploadArea">
-          <div class="upload-icon">📁</div>
           <h3>Upload Save File</h3>
           <p>Drag and drop your .sav file here or click to browse</p>
           <input 
@@ -43,13 +43,14 @@ app.innerHTML = `
             </details>
           </div>
           
+          <button id="downloadBtn" class="btn-primary">Download Modified Save</button>
           <button id="clearBtn" class="btn-secondary">Clear File</button>
         </div>
       </div>
     </main>
     
     <footer>
-      <p>No functionality implemented yet - file upload only</p>
+      <p>Upload a save file.</p>
     </footer>
   </div>
 `;
@@ -62,6 +63,7 @@ const fileInfo = document.getElementById('fileInfo') as HTMLDivElement;
 const fileName = document.getElementById('fileName') as HTMLSpanElement;
 const fileSize = document.getElementById('fileSize') as HTMLSpanElement;
 const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
+const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
 const fixChecksumCheckbox = document.getElementById('fixChecksumCheckbox') as HTMLInputElement;
 
 let currentFile: File | null = null;
@@ -109,6 +111,47 @@ clearBtn.addEventListener('click', () => {
   fileInput.value = '';
   uploadArea.style.display = 'block';
   fileInfo.style.display = 'none';
+});
+
+// Download button
+downloadBtn.addEventListener('click', async () => {
+  if (!currentFile) {
+    alert('No file loaded');
+    return;
+  }
+  
+  try {
+    // Read the file as an ArrayBuffer
+    const arrayBuffer = await currentFile.arrayBuffer();
+    let data: Uint8Array<ArrayBuffer> = new Uint8Array(arrayBuffer);
+    
+    // Apply checksum fix if checkbox is checked
+    if (fixChecksumCheckbox.checked) {
+      console.log('Fixing checksums for all 3 save slots...');
+      data = updateChecksums(data);
+      console.log('Checksums updated successfully');
+    }
+    
+    // Create a blob and download it
+    const blob = new Blob([data.buffer], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a temporary link and trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = currentFile.name;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    console.log('File downloaded:', currentFile.name);
+  } catch (error) {
+    console.error('Error processing file:', error);
+    alert('Error processing file. Check console for details.');
+  }
 });
 
 // Handle file
