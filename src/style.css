@@ -331,12 +331,39 @@ footer p {
   font-size: 0.95rem;
 }
 
+/* Control Group */
+.control-group {
+  margin-bottom: 15px;
+  padding: 15px;
+  background: var(--background);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.control-group:last-child {
+  margin-bottom: 0;
+}
+
+.control-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.control-group label > span {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
 .input-group {
   display: flex;
   gap: 10px;
   align-items: center;
 }
 
+.text-input,
+.number-input,
 .entrance-input {
   flex: 1;
   padding: 10px 15px;
@@ -345,10 +372,20 @@ footer p {
   border-radius: 6px;
   color: var(--text);
   font-size: 1rem;
-  font-family: 'Courier New', monospace;
   transition: border-color 0.2s ease;
 }
 
+.text-input {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.number-input,
+.entrance-input {
+  font-family: 'Courier New', monospace;
+}
+
+.text-input:focus,
+.number-input:focus,
 .entrance-input:focus {
   outline: none;
   border-color: var(--primary-color);
