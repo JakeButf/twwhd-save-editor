@@ -75,12 +75,10 @@ const saveFilesContainer = document.getElementById('saveFilesContainer') as HTML
 let currentFile: File | null = null;
 let currentFileData: Uint8Array | null = null;
 
-// Browse button click
 browseBtn.addEventListener('click', () => {
   fileInput.click();
 });
 
-// File input change
 fileInput.addEventListener('change', (e) => {
   const target = e.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
@@ -88,7 +86,6 @@ fileInput.addEventListener('change', (e) => {
   }
 });
 
-// Drag and drop
 uploadArea.addEventListener('dragover', (e) => {
   e.preventDefault();
   uploadArea.classList.add('drag-over');
@@ -112,7 +109,6 @@ uploadArea.addEventListener('drop', (e) => {
   }
 });
 
-// Clear button
 clearBtn.addEventListener('click', () => {
   currentFile = null;
   currentFileData = null;
@@ -122,7 +118,6 @@ clearBtn.addEventListener('click', () => {
   saveFilesContainer.innerHTML = '';
 });
 
-// Download button
 downloadBtn.addEventListener('click', async () => {
   if (!currentFile || !currentFileData) {
     alert('No file loaded');
@@ -130,39 +125,32 @@ downloadBtn.addEventListener('click', async () => {
   }
   
   try {
-    // Create a copy of the data to modify
     let data: Uint8Array<ArrayBuffer> = new Uint8Array(currentFileData);
     
-    // Apply checksum fix if checkbox is checked
     if (fixChecksumCheckbox.checked) {
       console.log('Fixing checksums for all 3 save slots...');
       data = updateChecksums(data);
       console.log('Checksums updated successfully');
     }
     
-    // Create a blob and download it
     const blob = new Blob([data.buffer], { type: 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
     
-    // Create a temporary link and trigger download
     const a = document.createElement('a');
     a.href = url;
     a.download = currentFile.name;
     document.body.appendChild(a);
     a.click();
     
-    // Cleanup
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    console.log('File downloaded:', currentFile.name);
   } catch (error) {
     console.error('Error processing file:', error);
     alert('Error processing file. Check console for details.');
   }
 });
 
-// Handle file
 async function handleFile(file: File) {
   if (!file.name.endsWith('.sav')) {
     alert('Please upload a .sav file');
@@ -171,15 +159,12 @@ async function handleFile(file: File) {
   
   currentFile = file;
   
-  // Read file data
   const arrayBuffer = await file.arrayBuffer();
   currentFileData = new Uint8Array(arrayBuffer);
   
-  // Update UI
   fileName.textContent = file.name;
   fileSize.textContent = formatFileSize(file.size);
   
-  // Display save file dropdowns
   displaySaveFiles(currentFileData);
   
   uploadArea.style.display = 'none';
@@ -188,22 +173,19 @@ async function handleFile(file: File) {
   console.log('File loaded:', file.name, file.size, 'bytes');
 }
 
-// Read file name from save data at specified offset
-// File names have null bytes (0x00) between each character
+//file names have null bytes between each character
 function readFileName(data: Uint8Array, offset: number, maxLength: number): string {
   let name = '';
   let i = offset;
   
-  // Read characters, skipping null bytes between them
   while (i < data.length && i < offset + (maxLength * 2)) {
     const charCode = data[i];
     
-    // Stop if we hit two consecutive null bytes (end of string)
+    //stop if we hit two consecutive null bytes
     if (charCode === 0 && (i + 1 >= data.length || data[i + 1] === 0)) {
       break;
     }
     
-    // Add the character if it's not a null byte
     if (charCode !== 0) {
       name += String.fromCharCode(charCode);
     }
@@ -214,24 +196,24 @@ function readFileName(data: Uint8Array, offset: number, maxLength: number): stri
   return name || 'Empty Slot';
 }
 
-// Display save file dropdowns
 function displaySaveFiles(data: Uint8Array) {
   const fileOffsets = [
-    { slot: 1, offset: 0x2035 },
-    { slot: 2, offset: 0x2047 },
-    { slot: 3, offset: 0x2059 }
+    { slot: 1, nameOffset: 0x2035, fileStart: 0x0 },
+    { slot: 2, nameOffset: 0x2047, fileStart: 0xA94 },
+    { slot: 3, nameOffset: 0x2059, fileStart: 0x1528 }
   ];
   
   saveFilesContainer.innerHTML = '';
   
-  fileOffsets.forEach(({ slot, offset }, index) => {
-    // Calculate max name length based on distance to next offset
-    // 0x2047 - 0x2035 = 0x12 (18 bytes), so 9 characters with null bytes between
+  fileOffsets.forEach(({ slot, nameOffset, fileStart }, index) => {
     const maxNameLength = index < fileOffsets.length - 1 
-      ? (fileOffsets[index + 1].offset - offset) / 2 
-      : 9; // Default to 9 characters for the last file
+      ? (fileOffsets[index + 1].nameOffset - nameOffset) / 2 
+      : 9; //default to 9 characters for the last file
     
-    const saveName = readFileName(data, offset, maxNameLength);
+    const saveName = readFileName(data, nameOffset, maxNameLength);
+    
+    const entranceIdOffset = fileStart + 0x38;
+    const entranceId = data[entranceIdOffset];
     
     const dropdown = document.createElement('details');
     dropdown.className = 'save-file-dropdown';
@@ -241,11 +223,52 @@ function displaySaveFiles(data: Uint8Array) {
     
     const content = document.createElement('div');
     content.className = 'dropdown-content';
-    content.innerHTML = `
-      <p>File Name: <strong>${saveName}</strong></p>
-      <p>Offset: 0x${offset.toString(16).toUpperCase()}</p>
-      <p class="placeholder-text">Controls coming soon...</p>
+    
+    const entranceContainer = document.createElement('div');
+    entranceContainer.className = 'entrance-control';
+    entranceContainer.innerHTML = `
+      <label for="entrance-${slot}">
+        <span>Entrance ID:</span>
+        <div class="input-group">
+          <input 
+            type="number" 
+            id="entrance-${slot}" 
+            class="entrance-input" 
+            min="0" 
+            max="255" 
+            value="${entranceId}"
+            data-offset="${entranceIdOffset}"
+          />
+          <span class="hex-display">0x${entranceId.toString(16).toUpperCase().padStart(2, '0')}</span>
+        </div>
+      </label>
     `;
+    
+    const infoText = document.createElement('p');
+    infoText.className = 'info-text';
+    infoText.innerHTML = `<strong>File Name:</strong> ${saveName}<br><strong>Name Offset:</strong> 0x${nameOffset.toString(16).toUpperCase()}`;
+    
+    content.appendChild(infoText);
+    content.appendChild(entranceContainer);
+    
+    const input = entranceContainer.querySelector(`#entrance-${slot}`) as HTMLInputElement;
+    const hexDisplay = entranceContainer.querySelector('.hex-display') as HTMLSpanElement;
+    
+    input.addEventListener('input', () => {
+      let value = parseInt(input.value);
+      
+      if (value < 0) value = 0;
+      if (value > 255) value = 255;
+      if (isNaN(value)) value = 0;
+      
+      input.value = value.toString();
+      hexDisplay.textContent = `0x${value.toString(16).toUpperCase().padStart(2, '0')}`;
+      
+      if (currentFileData) {
+        currentFileData[entranceIdOffset] = value;
+        console.log(`Updated File ${slot} entrance ID to ${value} (0x${value.toString(16).toUpperCase()}) at offset 0x${entranceIdOffset.toString(16).toUpperCase()}`);
+      }
+    });
     
     dropdown.appendChild(summary);
     dropdown.appendChild(content);
@@ -253,7 +276,6 @@ function displaySaveFiles(data: Uint8Array) {
   });
 }
 
-// Format file size
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
   

@@ -310,6 +310,69 @@ footer p {
   margin-top: 15px !important;
 }
 
+/* Entrance Control */
+.entrance-control {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--background);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.entrance-control label {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.entrance-control label > span {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.entrance-input {
+  flex: 1;
+  padding: 10px 15px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+  transition: border-color 0.2s ease;
+}
+
+.entrance-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.hex-display {
+  padding: 10px 15px;
+  background: var(--surface-light);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--success);
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+}
+
+.info-text {
+  color: var(--text-secondary);
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
 /* Button Spacing */
 #downloadBtn,
 #clearBtn {
