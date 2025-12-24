@@ -5,25 +5,29 @@
 }
 
 :root {
-  --primary-color: #2563eb;
-  --primary-hover: #1d4ed8;
-  --secondary-color: #64748b;
-  --background: #0f172a;
-  --surface: #1e293b;
-  --surface-light: #334155;
-  --text: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --border: #475569;
-  --success: #10b981;
-  --danger: #ef4444;
+  --primary-color: #4a4a4a;
+  --primary-hover: #5a5a5a;
+  --secondary-color: #6a6a6a;
+  --background: #0a0a0a;
+  --surface: #1a1a1a;
+  --surface-light: #2a2a2a;
+  --text: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border: #3a3a3a;
+  --success: #7a7a7a;
+  --danger: #5a5a5a;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  font-family: 'Consolas', 'Courier New', monospace;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
   color: var(--text);
   min-height: 100vh;
-  line-height: 1.6;
+  line-height: 1.4;
+  font-size: 12px;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  font-smooth: never;
 }
 
 #app {
@@ -44,21 +48,25 @@ body {
 }
 
 header {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2a2a2a 100%);
   padding: 40px 30px;
   text-align: center;
 }
 
 header h1 {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   margin-bottom: 8px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: none;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 header h2 {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 400;
   opacity: 0.95;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 main {
@@ -91,13 +99,13 @@ main {
 }
 
 .upload-icon {
-  font-size: 4rem;
+  font-size: 3rem;
   margin-bottom: 20px;
   opacity: 0.8;
 }
 
 .upload-area h3 {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   margin-bottom: 10px;
   color: var(--text);
 }
@@ -105,18 +113,20 @@ main {
 .upload-area p {
   color: var(--text-secondary);
   margin-bottom: 25px;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .btn-primary,
 .btn-secondary {
-  padding: 12px 32px;
+  padding: 10px 24px;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .btn-primary {
@@ -127,7 +137,7 @@ main {
 .btn-primary:hover {
   background: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 4px 12px rgba(74, 74, 74, 0.4);
 }
 
 .btn-secondary {
@@ -136,9 +146,9 @@ main {
 }
 
 .btn-secondary:hover {
-  background: #dc2626;
+  background: #4a4a4a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 12px rgba(90, 90, 90, 0.4);
 }
 
 .button-group {
@@ -170,13 +180,13 @@ main {
 }
 
 .file-details h3 {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   margin-bottom: 20px;
-  color: var(--success);
+  color: var(--text);
 }
 
 .file-details p {
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin-bottom: 10px;
   color: var(--text-secondary);
 }
@@ -199,7 +209,7 @@ footer {
 
 footer p {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-style: italic;
 }
 
@@ -217,9 +227,12 @@ footer p {
   padding: 15px 20px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 0.9rem;
   list-style: none;
   user-select: none;
   transition: background 0.2s ease;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .advanced-dropdown summary:hover,
@@ -254,7 +267,7 @@ footer p {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: var(--text);
 }
 
@@ -280,7 +293,7 @@ footer p {
 }
 
 .save-files-section h3 {
-  font-size: 1.3rem;
+  font-size: 1rem;
   margin-bottom: 20px;
   color: var(--text);
 }
@@ -353,7 +366,7 @@ footer p {
 .control-group label > span {
   display: block;
   margin-bottom: 10px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .input-group {
@@ -366,22 +379,24 @@ footer p {
 .number-input,
 .entrance-input {
   flex: 1;
-  padding: 10px 15px;
+  padding: 8px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text);
-  font-size: 1rem;
+  font-size: 0.85rem;
   transition: border-color 0.2s ease;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .text-input {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Consolas', 'Courier New', monospace;
 }
 
 .number-input,
 .entrance-input {
-  font-family: 'Courier New', monospace;
+  font-family: 'Consolas', 'Courier New', monospace;
 }
 
 .text-input:focus,
@@ -389,19 +404,22 @@ footer p {
 .entrance-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 74, 74, 0.1);
 }
 
 .hex-display {
-  padding: 10px 15px;
+  padding: 8px 12px;
   background: var(--surface-light);
   border: 1px solid var(--border);
   border-radius: 6px;
-  color: var(--success);
-  font-family: 'Courier New', monospace;
+  color: var(--text);
+  font-family: 'Consolas', 'Courier New', monospace;
   font-weight: 600;
+  font-size: 0.85rem;
   min-width: 60px;
   text-align: center;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .info-text {
@@ -418,11 +436,11 @@ footer p {
 
 @media (max-width: 768px) {
   header h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
   
   header h2 {
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
   
   .upload-area {
