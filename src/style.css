@@ -23,6 +23,7 @@ body {
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
   color: var(--text);
   min-height: 100vh;
+  height: 100vh;
   line-height: 1.4;
   font-size: 12px;
   -webkit-font-smoothing: none;
@@ -31,20 +32,21 @@ body {
 }
 
 #app {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .container {
   width: 100%;
-  max-width: 700px;
   background: var(--surface);
   border-radius: 16px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  overflow: visible;
+  margin: auto 0;
 }
 
 header {
@@ -428,10 +430,40 @@ footer p {
   line-height: 1.6;
 }
 
-/* Button Spacing */
 #downloadBtn,
 #clearBtn {
   margin: 10px 5px;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.item-select {
+  padding: 6px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.75rem;
+  font-family: 'Consolas', 'Courier New', monospace;
+  cursor: pointer;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  transition: border-color 0.2s ease;
+}
+
+.item-select:hover {
+  border-color: var(--primary-color);
+}
+
+.item-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(74, 74, 74, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -449,5 +481,9 @@ footer p {
   
   main {
     padding: 30px 20px;
+  }
+
+  .inventory-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

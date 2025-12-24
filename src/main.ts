@@ -227,6 +227,74 @@ function writeFileName(data: Uint8Array, offset: number, name: string, maxLength
   }
 }
 
+const ITEMS = [
+  { name: 'Empty', value: 0xFF },
+  { name: 'Hero\'s Charm', value: 0x01 },
+  { name: 'Telescope', value: 0x20 },
+  { name: 'Tingle Bottle', value: 0x21 },
+  { name: 'Wind Waker', value: 0x22 },
+  { name: 'PictoBox', value: 0x23 },
+  { name: 'Spoils Bag', value: 0x24 },
+  { name: 'Grappling Hook', value: 0x25 },
+  { name: 'Deluxe PictoBox', value: 0x26 },
+  { name: 'Hero\'s Bow', value: 0x27 },
+  { name: 'Power Bracelets', value: 0x28 },
+  { name: 'Iron Boots', value: 0x29 },
+  { name: 'Magic Armor', value: 0x2A },
+  { name: 'Water Boots', value: 0x2B },
+  { name: 'Bait Bag', value: 0x2C },
+  { name: 'Boomerang', value: 0x2D },
+  { name: 'Bare Hand', value: 0x2E },
+  { name: 'Hookshot', value: 0x2F },
+  { name: 'Delivery Bag', value: 0x30 },
+  { name: 'Bombs', value: 0x31 },
+  { name: 'Hero\'s Clothes', value: 0x32 },
+  { name: 'Skull Hammer', value: 0x33 },
+  { name: 'Deku Leaf', value: 0x34 },
+  { name: 'Fire & Ice Arrows', value: 0x35 },
+  { name: 'Light Arrows', value: 0x36 },
+  { name: 'Hero\'s New Clothes', value: 0x37 },
+  { name: 'Hero\'s Sword', value: 0x38 },
+  { name: 'Master Sword', value: 0x39 },
+  { name: 'Master Sword (Half Restored)', value: 0x3A },
+  { name: 'Hero\'s Shield', value: 0x3B },
+  { name: 'Mirror Shield', value: 0x3C },
+  { name: 'Hero\'s Sword (Dropped)', value: 0x3D },
+  { name: 'Master Sword (Full Restored)', value: 0x3E },
+  { name: 'Piece of Heart (Alt)', value: 0x3F },
+  { name: 'Unknown (0x40)', value: 0x40 },
+  { name: 'Unknown (0x41)', value: 0x41 },
+  { name: 'Pirate\'s Charm', value: 0x42 },
+  { name: 'Hero\'s Charm (Alt)', value: 0x43 },
+  { name: 'Grass Ball', value: 0x44 },
+  { name: 'Skull Necklace', value: 0x45 },
+  { name: 'Boko Baba Seed', value: 0x46 },
+  { name: 'Golden Feather', value: 0x47 },
+  { name: 'Knights Crest', value: 0x48 },
+  { name: 'Red Chu Jelly', value: 0x49 },
+  { name: 'Green Chu Jelly', value: 0x4A },
+  { name: 'Blue Chu Jelly', value: 0x4B },
+  { name: 'Dungeon Map', value: 0x4C },
+  { name: 'Compass', value: 0x4D },
+  { name: 'Big Key', value: 0x4E },
+  { name: 'Empty Bottle', value: 0x4F },
+  { name: 'Bottle (Empty)', value: 0x50 },
+  { name: 'Red Potion', value: 0x51 },
+  { name: 'Green Potion', value: 0x52 },
+  { name: 'Blue Potion', value: 0x53 },
+  { name: 'Soup (Half)', value: 0x54 },
+  { name: 'Soup', value: 0x55 },
+  { name: 'Water', value: 0x56 },
+  { name: 'Fairy', value: 0x57 },
+  { name: 'Fire Fly', value: 0x58 },
+  { name: 'Magic Water', value: 0x59 }
+];
+
+function getItemName(value: number): string {
+  const item = ITEMS.find(i => i.value === value);
+  return item ? item.name : `Unknown (0x${value.toString(16).toUpperCase().padStart(2, '0')})`;
+}
+
 function displaySaveFiles(data: Uint8Array) {
   const fileOffsets = [
     { slot: 1, nameOffset: 0x2035, fileStart: 0x0 },
@@ -247,6 +315,7 @@ function displaySaveFiles(data: Uint8Array) {
     const spawnIdOffset = fileStart + 0x38;
     const roomIdOffset = fileStart + 0x39;
     const layerIdOffset = fileStart + 0x3A;
+    const inventoryOffset = fileStart + 0x3C;
 
     const stage = readStageString(data, stageOffset);
     const spawnId = data[spawnIdOffset];
@@ -360,6 +429,75 @@ function displaySaveFiles(data: Uint8Array) {
     content.appendChild(spawnContainer);
     content.appendChild(roomContainer);
     content.appendChild(layerContainer);
+
+    // Inventory Section
+    const inventorySection = document.createElement('div');
+    inventorySection.className = 'control-group';
+    inventorySection.innerHTML = `
+      <label>
+        <span>Inventory (21 slots):</span>
+      </label>
+    `;
+
+    const inventoryGrid = document.createElement('div');
+    inventoryGrid.className = 'inventory-grid';
+    inventoryGrid.style.cssText = 'display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;';
+
+    // Create 21 inventory slot dropdowns
+    for (let slotIndex = 0; slotIndex < 21; slotIndex++) {
+      const slotOffset = inventoryOffset + slotIndex;
+      const currentItemValue = data[slotOffset];
+
+      const slotContainer = document.createElement('div');
+      slotContainer.style.cssText = 'display: flex; flex-direction: column; gap: 4px;';
+
+      const slotLabel = document.createElement('label');
+      slotLabel.style.cssText = 'font-size: 0.8rem; color: var(--text-secondary);';
+      slotLabel.textContent = `Slot ${slotIndex + 1}`;
+
+      const select = document.createElement('select');
+      select.className = 'item-select';
+      select.id = `inventory-${slot}-${slotIndex}`;
+      select.style.cssText = `
+        padding: 6px 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        font-size: 0.75rem;
+        font-family: 'Consolas', 'Courier New', monospace;
+        cursor: pointer;
+        -webkit-font-smoothing: none;
+        -moz-osx-font-smoothing: grayscale;
+      `;
+
+      // Populate dropdown with items
+      ITEMS.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.value.toString();
+        option.textContent = item.name;
+        if (item.value === currentItemValue) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+
+      // Add event listener to update inventory
+      select.addEventListener('change', () => {
+        const newValue = parseInt(select.value);
+        if (currentFileData) {
+          currentFileData[slotOffset] = newValue;
+          console.log(`Updated File ${slot} inventory slot ${slotIndex + 1} to ${getItemName(newValue)} (0x${newValue.toString(16).toUpperCase().padStart(2, '0')}) at offset 0x${slotOffset.toString(16).toUpperCase()}`);
+        }
+      });
+
+      slotContainer.appendChild(slotLabel);
+      slotContainer.appendChild(select);
+      inventoryGrid.appendChild(slotContainer);
+    }
+
+    inventorySection.appendChild(inventoryGrid);
+    content.appendChild(inventorySection);
 
     //event listeners
     const nameInput = nameContainer.querySelector(`#filename-${slot}`) as HTMLInputElement;
