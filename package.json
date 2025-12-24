@@ -1,0 +1,15 @@
+{
+  "name": "twwhd-saveeditor",
+  "version": "0.1.0",
+  "description": "The Wind Waker HD Save Editor",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8"
+  }
+}
