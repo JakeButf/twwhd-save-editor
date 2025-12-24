@@ -31,6 +31,11 @@ app.innerHTML = `
             <p><strong>Size:</strong> <span id="fileSize"></span></p>
           </div>
           
+          <div class="save-files-section" id="saveFilesSection">
+            <h3>Save Files</h3>
+            <div id="saveFilesContainer"></div>
+          </div>
+          
           <div class="options-menu">
             <details class="advanced-dropdown" open>
               <summary>Advanced Options</summary>
@@ -65,8 +70,10 @@ const fileSize = document.getElementById('fileSize') as HTMLSpanElement;
 const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
 const downloadBtn = document.getElementById('downloadBtn') as HTMLButtonElement;
 const fixChecksumCheckbox = document.getElementById('fixChecksumCheckbox') as HTMLInputElement;
+const saveFilesContainer = document.getElementById('saveFilesContainer') as HTMLDivElement;
 
 let currentFile: File | null = null;
+let currentFileData: Uint8Array | null = null;
 
 // Browse button click
 browseBtn.addEventListener('click', () => {
@@ -108,22 +115,23 @@ uploadArea.addEventListener('drop', (e) => {
 // Clear button
 clearBtn.addEventListener('click', () => {
   currentFile = null;
+  currentFileData = null;
   fileInput.value = '';
   uploadArea.style.display = 'block';
   fileInfo.style.display = 'none';
+  saveFilesContainer.innerHTML = '';
 });
 
 // Download button
 downloadBtn.addEventListener('click', async () => {
-  if (!currentFile) {
+  if (!currentFile || !currentFileData) {
     alert('No file loaded');
     return;
   }
   
   try {
-    // Read the file as an ArrayBuffer
-    const arrayBuffer = await currentFile.arrayBuffer();
-    let data: Uint8Array<ArrayBuffer> = new Uint8Array(arrayBuffer);
+    // Create a copy of the data to modify
+    let data: Uint8Array<ArrayBuffer> = new Uint8Array(currentFileData);
     
     // Apply checksum fix if checkbox is checked
     if (fixChecksumCheckbox.checked) {
@@ -155,7 +163,7 @@ downloadBtn.addEventListener('click', async () => {
 });
 
 // Handle file
-function handleFile(file: File) {
+async function handleFile(file: File) {
   if (!file.name.endsWith('.sav')) {
     alert('Please upload a .sav file');
     return;
@@ -163,14 +171,86 @@ function handleFile(file: File) {
   
   currentFile = file;
   
+  // Read file data
+  const arrayBuffer = await file.arrayBuffer();
+  currentFileData = new Uint8Array(arrayBuffer);
+  
   // Update UI
   fileName.textContent = file.name;
   fileSize.textContent = formatFileSize(file.size);
+  
+  // Display save file dropdowns
+  displaySaveFiles(currentFileData);
   
   uploadArea.style.display = 'none';
   fileInfo.style.display = 'block';
   
   console.log('File loaded:', file.name, file.size, 'bytes');
+}
+
+// Read file name from save data at specified offset
+// File names have null bytes (0x00) between each character
+function readFileName(data: Uint8Array, offset: number, maxLength: number): string {
+  let name = '';
+  let i = offset;
+  
+  // Read characters, skipping null bytes between them
+  while (i < data.length && i < offset + (maxLength * 2)) {
+    const charCode = data[i];
+    
+    // Stop if we hit two consecutive null bytes (end of string)
+    if (charCode === 0 && (i + 1 >= data.length || data[i + 1] === 0)) {
+      break;
+    }
+    
+    // Add the character if it's not a null byte
+    if (charCode !== 0) {
+      name += String.fromCharCode(charCode);
+    }
+    
+    i++;
+  }
+  
+  return name || 'Empty Slot';
+}
+
+// Display save file dropdowns
+function displaySaveFiles(data: Uint8Array) {
+  const fileOffsets = [
+    { slot: 1, offset: 0x2035 },
+    { slot: 2, offset: 0x2047 },
+    { slot: 3, offset: 0x2059 }
+  ];
+  
+  saveFilesContainer.innerHTML = '';
+  
+  fileOffsets.forEach(({ slot, offset }, index) => {
+    // Calculate max name length based on distance to next offset
+    // 0x2047 - 0x2035 = 0x12 (18 bytes), so 9 characters with null bytes between
+    const maxNameLength = index < fileOffsets.length - 1 
+      ? (fileOffsets[index + 1].offset - offset) / 2 
+      : 9; // Default to 9 characters for the last file
+    
+    const saveName = readFileName(data, offset, maxNameLength);
+    
+    const dropdown = document.createElement('details');
+    dropdown.className = 'save-file-dropdown';
+    
+    const summary = document.createElement('summary');
+    summary.textContent = `File ${slot}: ${saveName}`;
+    
+    const content = document.createElement('div');
+    content.className = 'dropdown-content';
+    content.innerHTML = `
+      <p>File Name: <strong>${saveName}</strong></p>
+      <p>Offset: 0x${offset.toString(16).toUpperCase()}</p>
+      <p class="placeholder-text">Controls coming soon...</p>
+    `;
+    
+    dropdown.appendChild(summary);
+    dropdown.appendChild(content);
+    saveFilesContainer.appendChild(dropdown);
+  });
 }
 
 // Format file size
